@@ -4,6 +4,8 @@ import pandas as pd
 import os
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
+from sklearn import tree
+from sklearn.model_selection import cross_val_score
 
 
 # Exercise 2.7
@@ -45,7 +47,6 @@ births.drop(labels=['parity'], axis=1, inplace=True)
 births.insert(loc=births.columns.get_loc('etnicity'), column='etni', value= etni_list)
 births.drop(labels=['etnicity'], axis=1, inplace=True)
 
-#print(births.head())
 
 # d)
 # useful link: https://towardsdatascience.com/python-scikit-learn-logistic-regression-classification-eb9c8de8938d
@@ -70,9 +71,27 @@ x = births.drop(['provmin','age','home'],axis=1)
 print(x.head())
 
 # Implementing the model
-model = LogisticRegression().fit(x,y)
+model_1 = LogisticRegression().fit(x,y)
 
 # Analysing the outcomes of the model
-y_pred = pd.Series(model.predict(x))
+y_pred = pd.Series(model_1.predict(x))
 target_names = ['not_at_home','at_home']
 print(classification_report(y, y_pred, target_names = target_names))
+
+# e)
+model_2 = tree.DecisionTreeRegressor().fit(x,y)
+tree.plot_tree(model_2)
+plt.show()
+
+# f)
+# Performing 10-fold cross validation
+scores_1 = cross_val_score(model_1, x, y, cv=10)
+scores_2 = cross_val_score(model_2, x, y, cv=10)
+
+print("The average accuracy for the Logistic Regression model is %0.2f, with %0.2f standard deviation."
+    %(scores_1.mean(),scores_1.std()))
+
+print("\nThe average accuracy for the Decision tree model is %0.2f, with %0.2f standard deviation."
+    %(scores_2.mean(),scores_2.std()))
+
+print("\nHence the Logistic Regression model fits better with the data!")
